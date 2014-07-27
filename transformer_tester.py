@@ -41,11 +41,11 @@ class smartestClass:
 	param2 = 0
 	param3 = ""
 	param4 = 0
-	def __init__(self, param1, param2, param3):
+	def __init__(self, param1, param2, param3, param4):
 		self.param1 = param1
 		self.param2 = param2
 		self.param3 = param3
-		self.param4 = 90210
+		self.param4 = param4
 
 	def getFeatures(self):
 		feats = dict()
@@ -60,10 +60,13 @@ c = transformer.transform(naiveClass(1,2,"Male"), None)
 print "Naive Class = \t\t" + str(c)
 
 
-c = transformer.transform(improvedClass(1,2,"Male"), None)
+db = memoryDB.memoryDB()
+c = transformer.transform(improvedClass(1,2,"Male"), db)
 print "Improved Class = \t" + str(c)
 
 
 db = memoryDB.memoryDB()
-c = transformer.transform(smartestClass(1,2,"Male"), db)
+c = transformer.transform(smartestClass(2.,2.,"Male",2), db)
+c = transformer.transform(smartestClass(2.,2.,"Female",3), db)
+c = transformer.transform(smartestClass(1.,1.,"Female",3), db)
 print "Smart Class = \t\t" + str(c)

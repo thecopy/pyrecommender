@@ -4,6 +4,8 @@ import sys
 import random
 from time import sleep
 import signal
+import transformer
+from memoryDB import memoryDB
 
 def signal_handler(signal, frame):
 		print('You pressed Ctrl+C!')

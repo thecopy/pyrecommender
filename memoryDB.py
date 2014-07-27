@@ -1,13 +1,17 @@
+import shelve
+
 class memoryDB:
-	storage = dict()
+	d = None
 	def __init__(self):
-		storage = dict()
+		self.d = shelve.open("memoryDB.db")
 
 	def get(self, key):
-		if key in self.storage:
-			return self.storage(key)
-		return None
+		if self.d.has_key(key):
+			return self.d[key]
+		else:
+			return None
 
 	def set(self, key, val):
-		self.storage[key] = val
+		self.d[key] = val
+		self.d.sync()
 
