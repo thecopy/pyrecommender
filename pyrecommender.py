@@ -1,6 +1,7 @@
-from core import const, logservice, ucb
+from core import const, logservice, ucb, item
+import configuration as c
 import random
-
+import transformer
 class api:
 	mode = const.EXPLORE
 
@@ -33,4 +34,3 @@ class api:
 		item, context = self.logservice.getItemMetadata(id);
 		self.trainer.train(item, context, reward)
 
-print api().get(3)

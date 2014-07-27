@@ -102,8 +102,6 @@ def run_test(logservice, trainer, cv = False):
 			#print " = User " + str(userid) + " rated " + recommended_item.name + " " + str(rated)
 			if(rated > 3):
 				rated = 1
-			elif(rated > 4):
-				rated = 1.5
 			else:
 				rated = -1
 
