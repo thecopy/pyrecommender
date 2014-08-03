@@ -1,5 +1,6 @@
 import numpy as np
 import math
+
 class const:
 	EXPLOIT = 1
 	EXPLORE = 2
@@ -18,6 +19,13 @@ class util:
 		normalized = np.subtract(items, mean)
 		normalized = np.divide(normalized, std)
 		return np.nan_to_num(normalized)
+
+	@staticmethod
+	def transformFeatureVectorToCorrentShape(z, l):
+		diff = l-len(z)
+		if diff > 0:
+			return np.concatenate((z,np.array([0]*diff)),axis=1).astype(float)
+		return z
 
 class item:
 	id = None;
@@ -41,38 +49,30 @@ class ucb:
 
 	def setItems(self, items):
 		for item in items:
-			self.M[item.id] = np.identity(self.d)
-			self.B[item.id] = np.zeros(self.d).astype(float)
-			self.all_known_items.append(item.id)
-
-	def transformFeatureVectorToCorrentShape(self, z):
-		diff = self.d-len(z)
-		if diff > 0:
-			return np.concatenate((z,np.array([0]*diff)),axis=1).astype(float)
-		return z
+			self.M[item] = np.identity(self.d)
+			self.B[item] = np.zeros(self.d).astype(float)
+			self.all_known_items.append(item)
 
 	def reward(self, item, user_context, reward):
-		#print " = Rewarded " + str(reward) + " to " + str(item)
-		user_context = self.transformFeatureVectorToCorrentShape(user_context)
-		self.M[item.id] = self.M[item.id] + np.outer(user_context, user_context)
-		self.B[item.id] = self.B[item.id] + np.multiply(reward, user_context)
+		self.M[item] = self.M[item] + np.outer(user_context, user_context)
+		self.B[item] = self.B[item] + np.multiply(reward, user_context)
 
-	def get(self, items, user_context):
+	def get(self,user_context):
 		max_ucb = [(-10000, None)] #value, id
 
-		for item in items:
-			if item.id not in self.all_known_items:
-				self.M[item.id] = np.identity(self.d)
-				self.B[item.id] = np.zeros(self.d).astype(float) 
-				self.all_known_items.append(item.id)
+		for itemid, descriptor in self.all_known_items:
+			if item not in self.all_known_items:
+				self.M[itemid] = np.identity(self.d)
+				self.B[itemid] = np.zeros(self.d).astype(float) 
+				self.all_known_items.append(itemid)
 
-			w = np.dot(np.linalg.inv(self.M[item.id]), self.B[item.id])
-			ucb = np.dot(w, item.descriptor + user_context) + \
+			w = np.dot(np.linalg.inv(self.M[itemid]), self.B[itemid])
+			ucb = np.dot(w, descriptor + user_context) + \
 				self.alpha * math.sqrt(
 					np.dot(
 						np.dot(
 							w,
-							np.linalg.inv(self.M[item.id])
+							np.linalg.inv(self.M[itemid])
 						),
 						w
 					)

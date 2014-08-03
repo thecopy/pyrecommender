@@ -56,17 +56,13 @@ class smartestClass:
 		return feats
 
 
-c = transformer.transform(naiveClass(1,2,"Male"), None)
+t = transformer.transformer(None)
+c = t.transform(naiveClass(1,2,"Male"))
 print "Naive Class = \t\t" + str(c)
 
-
 db = memoryDB.memoryDB()
-c = transformer.transform(improvedClass(1,2,"Male"), db)
-print "Improved Class = \t" + str(c)
-
-
-db = memoryDB.memoryDB()
-c = transformer.transform(smartestClass(2.,2.,"Male",2), db)
-c = transformer.transform(smartestClass(2.,2.,"Female",3), db)
-c = transformer.transform(smartestClass(1.,1.,"Female",3), db)
+t = transformer.transformer(db)
+c = t.transform(smartestClass(2.,2.,"Male",2))
+c = t.transform(smartestClass(2.,2.,"Female",3))
+c = t.transform(smartestClass(1.,1.,"Female",3))
 print "Smart Class = \t\t" + str(c)
