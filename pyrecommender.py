@@ -1,30 +1,37 @@
-from core import const, logservice, ucb, item
+from core import const, logservice, ucb 
 import configuration as c
 import random
 import transformer
+import memoryDB
+
 class api:
 	mode = const.EXPLORE
 
 	items = ['dummy1', 'dummy2']
 	logservice = None
 	trainer = ucb()
-
-	def __init__(self, mode=const.EXPLORE):
+	db = None
+	transformer = None
+	sizeOfTarget = 1
+	def __init__(self, items, mode=const.EXPLORE):
 		self.mode = mode
 		self.logservice = logservice()
+		self.db = memoryDB.memoryDB()
+		self.transformer = transformer.transformer(self.db)
+		self.sizeOfTarget = 20
+		self.trainer.setItems([(o.id, self.transformer.transform(o, 20)) for o in items])
 
 	def get(self, context):
+		context = self.transformer.transform(context,20)
 		item = None
 
-		if self.mode == const.EXPLORE:
-			item = random.choice(self.items)
-		elif self.mode == const.EXPLOIT:
-			raise Exception('get() for mode EXPLOIT it not yet impletented') 
-		else:
-			raise Exception('Invalid mode') 
+		itemid = self.trainer.get(context)
+		if(itemid is None):
+			print 'Got none from trainer!'
+			return None
 
-		id = self.logservice.log(self.mode, item, context)
-		return (item, id)
+		id = self.logservice.log(itemid,context)
+		return (itemid, id)
 
 	def reward(self, id, reward):
 		self.logservice.reward(id, reward)

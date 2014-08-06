@@ -6,10 +6,15 @@ class const:
 	EXPLORE = 2
 
 class logservice:
+	logList = dict()
+	def __init__(self):
+		self.logList = dict()
 	def log(self, item, context):
-		return 1
-	def reward(self, id, reward):
-		pass
+		id = len(self.logList)
+		self.logList[id] = (item, context)
+		return id
+	def get(self, id):
+		return self.logList[id]
 
 class util:
 	@staticmethod
@@ -27,7 +32,7 @@ class util:
 			return np.concatenate((z,np.array([0]*diff)),axis=1).astype(float)
 		return z
 
-class item:
+class aitem:
 	id = None;
 	name = None;
 	descriptor = None;
@@ -49,9 +54,11 @@ class ucb:
 
 	def setItems(self, items):
 		for item in items:
-			self.M[item] = np.identity(self.d)
-			self.B[item] = np.zeros(self.d).astype(float)
-			self.all_known_items.append(item)
+			id = item[0]
+			context = item[1]
+			self.M[id] = np.identity(self.d)
+			self.B[id] = np.zeros(self.d).astype(float)
+			self.all_known_items.append((id, context))
 
 	def reward(self, item, user_context, reward):
 		self.M[item] = self.M[item] + np.outer(user_context, user_context)
@@ -60,11 +67,11 @@ class ucb:
 	def get(self,user_context):
 		max_ucb = [(-10000, None)] #value, id
 
-		for itemid, descriptor in self.all_known_items:
-			if item not in self.all_known_items:
-				self.M[itemid] = np.identity(self.d)
-				self.B[itemid] = np.zeros(self.d).astype(float) 
-				self.all_known_items.append(itemid)
+		if len(self.all_known_items) == 0:
+			print 'LinUCB: No items in self.all_known_items'
+			return None
+
+		for (itemid, descriptor) in self.all_known_items:
 
 			w = np.dot(np.linalg.inv(self.M[itemid]), self.B[itemid])
 			ucb = np.dot(w, descriptor + user_context) + \
@@ -77,13 +84,13 @@ class ucb:
 						w
 					)
 				)
-
-
 			if ucb > max_ucb[0][0]:
-				max_ucb = [(ucb, item)]
+				max_ucb = [(ucb, itemid)]
 			elif ucb == max_ucb[0][0]:
-				max_ucb.append((ucb, item))
+				max_ucb.append((ucb, itemid))
 
-		return max_ucb[np.random.choice(len(max_ucb),1)][1]
+		result = max_ucb[np.random.choice(len(max_ucb),1)][1]
+		print 'Result:', result
+		return result
 
 		
